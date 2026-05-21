@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,13 +11,25 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the frontend dist directory in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')));
+// Serve static files from the frontend dist directory
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Database file path - check if we're on Render
+let DB_DIR;
+if (process.env.RENDER) {
+  // On Render, use the data directory for persistent storage
+  DB_DIR = path.join('/opt/render/project', 'data');
+} else {
+  DB_DIR = __dirname;
 }
 
-// Database file path - use a path that works with Render's disk
-const DB_FILE = path.join(__dirname, 'equb.db');
+// Create the directory if it doesn't exist
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+}
+
+const DB_FILE = path.join(DB_DIR, 'equb.db');
+console.log('📄 Database file:', DB_FILE);
 
 // Initialize SQLite database
 const db = new sqlite3.Database(DB_FILE, (err) => {
@@ -710,13 +723,15 @@ app.get('/api/stats', (req, res) => {
 });
 
 // Catch-all route for frontend (SPA)
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 
-app.listen(PORT, () => {
+app.listen(PORT, (err) => {
+  if (err) {
+    console.error('❌ Error starting server:', err);
+    process.exit(1);
+  }
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📄 Database file: ${DB_FILE}`);
 });
