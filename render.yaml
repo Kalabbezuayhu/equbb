@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: eqube-pro
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: VITE_API_BASE_URL
+        value: https://eqube-pro.onrender.com/api
+    disk:
+      name: data
+      mountPath: /opt/render/project/data
+      sizeGB: 0.1
