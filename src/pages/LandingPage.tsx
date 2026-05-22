@@ -155,7 +155,7 @@ const LandingPage: React.FC = () => {
             </div>
             <span className="font-bold text-gray-900 dark:text-white">EqubPro</span>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">© 2026 EqubPro. All rights reserved.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">© 2026 EqubPro. All rights reserved(kalab bezuayhu).</p>
         </div>
       </footer>
     </div>
