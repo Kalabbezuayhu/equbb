@@ -23,7 +23,8 @@ const LoginPage: React.FC = () => {
       addToast('Login successful! Welcome back.', 'success');
       navigate('/dashboard');
     } catch (error) {
-      addToast('Login failed! Please try again.', 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Login failed! Please try again.';
+      addToast(errorMessage, 'error');
     }
   };
 

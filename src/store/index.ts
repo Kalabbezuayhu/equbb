@@ -57,7 +57,10 @@ export const useAppStore = create<AppState>()(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
           });
-          if (!response.ok) throw new Error("Login failed");
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: "Login failed" }));
+            throw new Error(errorData.message || "Login failed");
+          }
           const data = await response.json();
           set({ isAuthenticated: true, user: data.user });
         },
@@ -67,7 +70,10 @@ export const useAppStore = create<AppState>()(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password }),
           });
-          if (!response.ok) throw new Error("Signup failed");
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: "Signup failed" }));
+            throw new Error(errorData.message || "Signup failed");
+          }
           const data = await response.json();
           set({ isAuthenticated: true, user: data.user });
         },

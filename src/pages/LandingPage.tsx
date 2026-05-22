@@ -121,7 +121,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4"> WHY THIS EQUb?</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Everything you need to manage your group money… without starting arguments in the group chat.</p>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Teamwork makes my dream work.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (

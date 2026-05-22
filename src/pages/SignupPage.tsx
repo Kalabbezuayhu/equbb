@@ -30,7 +30,8 @@ const SignupPage: React.FC = () => {
       addToast('Signup successful! Welcome!', 'success');
       navigate('/dashboard');
     } catch (error) {
-      addToast('Signup failed! Please try again.', 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Signup failed! Please try again.';
+      addToast(errorMessage, 'error');
     }
   };
 
