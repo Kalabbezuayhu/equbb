@@ -4,6 +4,8 @@ const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
 
+console.log('🚀 Starting server...');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -11,8 +13,24 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.url}`);
+  next();
+});
+
+// Check if dist directory exists
+const distPath = path.join(__dirname, '../dist');
+console.log('📂 Dist directory:', distPath);
+console.log('📂 Dist exists:', fs.existsSync(distPath));
+
 // Serve static files from the frontend dist directory
-app.use(express.static(path.join(__dirname, '../dist')));
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  console.log('✅ Serving static files from dist directory');
+} else {
+  console.warn('⚠️ Dist directory not found!');
+}
 
 // Database file path - check if we're on Render
 let DB_DIR;
@@ -23,23 +41,43 @@ if (process.env.RENDER) {
   DB_DIR = __dirname;
 }
 
+console.log('📂 Database directory:', DB_DIR);
+
 // Create the directory if it doesn't exist
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(DB_DIR)) {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+    console.log('✅ Created database directory');
+  }
+} catch (err) {
+  console.error('❌ Error creating database directory:', err);
+  process.exit(1);
 }
 
 const DB_FILE = path.join(DB_DIR, 'equb.db');
 console.log('📄 Database file:', DB_FILE);
 
 // Initialize SQLite database
-const db = new sqlite3.Database(DB_FILE, (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-  } else {
-    console.log('✅ Connected to SQLite database');
-    initializeDatabase();
-  }
-});
+let db;
+try {
+  db = new sqlite3.Database(DB_FILE, (err) => {
+    if (err) {
+      console.error('❌ Error opening database:', err);
+      process.exit(1);
+    } else {
+      console.log('✅ Connected to SQLite database');
+      try {
+        initializeDatabase();
+      } catch (err) {
+        console.error('❌ Error initializing database:', err);
+        process.exit(1);
+      }
+    }
+  });
+} catch (err) {
+  console.error('❌ Error creating database instance:', err);
+  process.exit(1);
+}
 
 // Unique color palette for members
 const memberColors = [
@@ -722,8 +760,14 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// Catch-all route for frontend (SPA)
-app.get('*', (req, res) => {
+// Catch-all middleware for frontend (SPA) - Express 5.x compatible
+app.use((req, res, next) => {
+  // If it's an API route, pass it along
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  
+  // Otherwise serve the index.html
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 

@@ -66,7 +66,7 @@ const LandingPage: React.FC = () => {
                   Equb for Fresh Corner
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300">
-                  Where your group pools its funds fairly and transparently.
+                  Where our group pools its funds fairly.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 pt-2">
                   <Link to="/login">
